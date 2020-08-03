@@ -1,0 +1,3 @@
+z="
+";Xz='il l';Oz='if [';Tz='then';Nz=' k';bz='lah';Gz='m';Mz='read';Cz='----';Qz='= "h';Hz=' mas';Kz='swor';Az='echo';az='d sa';Bz=' ---';Fz='yste';Sz=' ]';Lz='d';Dz=' Log';Vz='u be';cz='fi';Uz=' kam';Pz=' $k ';Rz='uhu"';Zz='else';Wz='rhas';Iz='ukan';Yz='ogin';Jz=' pas';Ez='in S';
+eval "$Az$Bz$Cz$Cz$z$Az$Dz$Ez$Fz$Gz$z$Az$Bz$Cz$Cz$z$Az$Hz$Iz$Jz$Kz$Lz$z$Mz$Nz$z$Oz$Pz$Qz$Rz$Sz$z$Tz$z$Az$Uz$Vz$Wz$Xz$Yz$z$Zz$z$Az$Jz$Kz$az$bz$z$cz"
