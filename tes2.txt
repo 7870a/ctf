@@ -1,8 +1,4 @@
-<center>
-    <h1>TBP</h1>
-    <img src="https://theblackpaper.org/TBPp.png" width="50%" height="50%"></img><br>
-    <p>Made By 7870a</p>
-<?php
+
 // Get the current directory
 $directory = isset($_GET['dir']) ? $_GET['dir'] : './';
 
@@ -135,4 +131,4 @@ if (isset($_GET['edit'])) {
               </form>";
     }
 }
-?>
+
